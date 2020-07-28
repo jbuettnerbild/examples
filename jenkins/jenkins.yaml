@@ -1,0 +1,530 @@
+rbac:
+  create: true
+
+persistence:
+  enabled: true
+  accessMode: ReadWriteMany
+  size: 100Gi
+
+master:
+ # image: jenkins/jenkins
+  tag: "2.203"
+ # jenkinsAdminEmail: operations@
+  jenkinsUrlProtocol: https
+  adminUser: jenkins
+  numExecutors: 10
+  runAsUser: 1000
+  fsGroup: 1000
+  overwriteConfig: true
+  overwritePlugins: true
+  podAnnotations:
+    "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
+  resources:
+    requests:
+      cpu: "1"
+      memory: "2500Mi"
+    limits:
+      cpu: "4"
+      memory: "8000Mi"
+  javaOpts: >-
+    -Dhudson.tasks.MailSender.SEND_TO_USERS_WITHOUT_READ=true
+    -Dhudson.slaves.NodeProvisioner.initialDelay=0
+    -Dhudson.slaves.NodeProvisioner.MARGIN=50
+    -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85
+    -Dorg.jenkinsci.plugins.durabletask.BourneShellScript.HEARTBEAT_CHECK_INTERVAL=86400
+    -Dhudson.model.DirectoryBrowserSupport.CSP="sandbox allow-scripts;"
+  installPlugins:
+    - configuration-as-code:1.32
+    - ace-editor:1.1
+    - ansicolor:0.6.2
+    - blueocean-autofavorite:1.2.4
+    - blueocean-bitbucket-pipeline:1.19.0
+    - blueocean-commons:1.19.0
+    - blueocean-config:1.19.0
+    - blueocean-core-js:1.19.0
+    - blueocean-dashboard:1.19.0
+    - blueocean-display-url:2.3.0
+    - blueocean-events:1.19.0
+    - blueocean-git-pipeline:1.19.0
+    - blueocean-github-pipeline:1.19.0
+    - blueocean-i18n:1.19.0
+    - blueocean-jira:1.19.0
+    - blueocean-jwt:1.19.0
+    - blueocean-personalization:1.19.0
+    - blueocean-pipeline-api-impl:1.19.0
+    - blueocean-pipeline-editor:1.19.0
+    - blueocean-pipeline-scm-api:1.19.0
+    - blueocean-rest-impl:1.19.0
+    - blueocean-rest:1.19.0
+    - blueocean-web:1.19.0
+    - blueocean:1.19.0
+    - branch-api:2.5.4
+    - cloudbees-bitbucket-branch-source:2.5.0
+    - cloudbees-folder:6.9
+    - credentials-binding:1.20
+    - credentials:2.3.0
+    - display-url-api:2.3.2
+    - docker-commons:1.15
+    - docker-workflow:1.21
+    - durable-task:1.33
+    - email-ext-recipients-column:1.0
+    - email-ext:2.71
+    - emailext-template:1.1
+    - favorite:2.3.2
+    - git-client:3.0.0
+    - git-server:1.8
+    - git:4.0.0
+    - github-api:1.95
+    - github-branch-source:2.5.8
+    - github-oauth:0.33
+    - github-pullrequest:0.2.6
+    - github:1.29.4 #Version 1.29.4 is necessary for config "githubpluginconfig: hookSecretConfig: credentialsId". In Version 1.29.5 the root "credentialsId" doesnt exists anymore. BUG!
+    - handlebars:1.1.1
+    - handy-uri-templates-2-api:2.1.8-1.0
+    - htmlpublisher:1.21
+    - icon-shim:2.0.3
+    - jackson2-api:2.10.0
+    - javadoc:1.5
+    - jenkins-design-language:1.19.0
+    - jira:3.0.10
+    - job-dsl:1.74 #Migration necessary in Version 1.75 see https://github.com/jenkinsci/job-dsl-plugin/wiki/Migration#migrating-to-175
+    - jquery-detached:1.2.1
+    - jsch:0.1.55.1
+    - junit:1.28
+    - kubernetes-client-api:4.6.0-2
+    - kubernetes-credentials:0.4.1
+    - kubernetes:1.21.1
+    - mailer:1.32
+    - matrix-auth:2.5
+    - matrix-project:1.14
+    - maven-plugin:3.4
+    - mercurial:2.8
+    - momentjs:1.1.1
+    - pipeline-build-step:2.9
+    - pipeline-github-lib:1.0
+    - pipeline-graph-analysis:1.10
+    - pipeline-input-step:2.11
+    - pipeline-milestone-step:1.3.1
+    - pipeline-model-api:1.4.0
+    - pipeline-model-declarative-agent:1.1.1
+    - pipeline-model-definition:1.4.0
+    - pipeline-model-extensions:1.4.0
+    - pipeline-rest-api:2.12
+    - pipeline-stage-step:2.3
+    - pipeline-stage-tags-metadata:1.4.0
+    - pipeline-stage-view:2.12
+    - pipeline-utility-steps:2.3.1
+    - plain-credentials:1.5
+    - pubsub-light:1.13
+    - scm-api:2.6.3
+    - script-security:1.66
+    - sse-gateway:1.20
+    - ssh-credentials:1.18
+    - structs:1.20
+    - token-macro:2.10
+    - trilead-api:1.0.5
+    - variant:1.3
+    - workflow-api:2.37
+    - workflow-basic-steps:2.18
+    - workflow-cps-global-lib:2.15
+    - workflow-cps:2.75
+    - workflow-durable-task-step:2.35
+    - workflow-job:2.36
+    - workflow-multibranch:2.21
+    - workflow-scm-step:2.9
+    - workflow-step-api:2.20
+    - workflow-support:3.3
+  serviceType: ClusterIP
+  servicePort: 8080
+  slaveListenerPort: 50000
+  healthProbeLivenessInitialDelay: 300
+  healthProbeLivenessPeriodSeconds: 120
+  healthProbesLivenessTimeout: 10
+  healthProbesReadinessTimeout: 10
+  healthProbeReadinessPeriodSeconds: 120
+  ingress:
+    enabled: true
+    labels:
+      app: jenkins
+    annotations:
+      kubernetes.io/ingress.class: skipper
+      #zalando.org/skipper-predicate: Source("145.243.0.0/16", "192.30.252.0/22", "185.199.108.0/22", "140.82.112.0/20")
+      #hostName: ci.bla.blub.com
+  # Mount Kubernetes secrets as files to use them in Jenkins.
+  initContainerEnv:
+    - name: SECRETS
+      value: "/var/jenkins_secrets"
+  containerEnv:
+    - name: SECRETS
+      value: "/var/jenkins_secrets"
+  secretsFilesSecret: "jenkins-secrets"
+  scriptApproval:
+    - method hudson.model.Cause getShortDescription
+    - method hudson.model.Run getCauses
+    - method hudson.model.Run getLog int
+    - method org.jenkinsci.plugins.workflow.support.steps.build.RunWrapper getRawBuild
+  # Use "Jenkins Configuration as Code" to configure your Jenkins instance.
+  sidecars:
+    configAutoReload:
+      enabled: true
+  JCasC:
+    enabled: true
+    configScripts:
+      extendedemail: |
+        unclassified:
+          extendedEmailPublisher:
+            allowUnregisteredEnabled: "true"
+            useSsl: true
+            smtpPort: 465
+            charset: "UTF-8"
+            defaultContentType: "text/html"
+            smtpUsername: "${iam-id}"
+            smtpPassword: "${iam-key}"
+            smtpServer: "email-smtp.eu-central-1.amazonaws.com"
+          mailer:
+            authentication:
+              password: "${iam-key}"
+              username: "${iam-id}"
+            smtpHost: "email-smtp.eu-central-1.amazonaws.com"
+            smtpPort: "465"
+            useSsl: true
+            useTls: false
+            charset: "UTF-8"
+            defaultSuffix: "@team.de"
+      githuboauth: |
+        jenkins:
+          securityRealm:
+            github:
+              githubWebUri: "https://github.com"
+              githubApiUri: "https://api.github.com"
+#              clientID: ""
+              clientSecret: "${github-oauth-client-secret}"
+              oauthScopes: "read:org,user:email"
+        security:
+          GlobalJobDslSecurityConfiguration:
+            useScriptSecurity: false
+      github: |
+        unclassified:
+          githubpluginconfig:
+            configs:
+              - name: "GitHub"
+                apiUrl: "https://api.github.com"
+                credentialsId: "Github-Token"
+                manageHooks: true
+            hookSecretConfig:
+              credentialsId: "Github-Webhook-Secret"
+      matrix-auth: |
+        jenkins:
+          authorizationStrategy:
+            globalMatrix:
+              grantedPermissions:
+                - "Agent/Build:team-jenkins"
+                - "Job/Read:team-jenkins"
+                - "Overall/Administer:jenkins"
+#                - "Overall/Administer:tean*Infrastruktur"
+#                - "Overall/Read:team-jenkins"
+#                - "Run/Delete:team-jenkins"
+#                - "Run/Replay:team-jenkins"
+#                - "Run/Update:team-jenkins"
+#                - "View/Read:team-jenkins"
+      sharedlibraries: |
+        unclassified:
+          globalLibraries:
+            libraries:
+              - name: "sharedLibraries"
+                defaultVersion: "master"
+                retriever:
+                  modernSCM:
+                    scm:
+                      git:
+#                        remote: "https://github.com/**/team-infra-jenkins-shared-library.git"
+                        credentialsId: "Github-User"
+      secrets: |
+        credentials:
+          system:
+            domainCredentials:
+              - credentials:
+                  - usernamePassword:
+                      scope: GLOBAL
+                      id: "Github-User"
+                      username: ${github-username}
+                      password: ${github-token}
+                      description: "User to access repos on github"
+                  - string:
+                      scope: GLOBAL
+                      id: "Github-Token"
+                      secret: ${github-token}
+                      description: "Token to get Github access for webhooks and repos"
+                  - string:
+                      scope: GLOBAL
+                      id: "Github-Webhook-Secret"
+                      secret: ${github-webhook-secret}
+                      description: "Secrets für Github Webhooks"
+                  - usernamePassword:
+                      scope: GLOBAL
+                      id: "artifactory-user"
+                      username: ${artifactory-username}
+                      password: ${artifactory-api-key}
+                      description: "User to access artifacts on ***.jfrog.io artifactory"
+                  - string:
+                      scope: GLOBAL
+                      id: "Artifactory-Api-Token"
+                      secret: ${artifactory-api-key}
+                      description: "Api Token für Artifactory (team-jenkins-artifactory)"
+      kubernetesagents: |
+        jenkins:
+          clouds:
+            - kubernetes:
+                name: "kubernetes"
+                serverUrl: ""
+                skipTlsVerify: true
+                namespace: "ci"
+                credentialsId: ""
+                jenkinsUrl: "http://jenkins:8080"
+                jenkinsTunnel: "jenkins-agent:50000"
+                connectTimeout: 120
+                readTimeout: 7200
+                containerCapStr: 100
+                maxRequestsPerHostStr: 128
+                retentionTimeout:
+                templates:
+                  - name: "jenkins-agent-maven"
+                    namespace: "ci"
+                    label: "jenkins-agent-maven"
+                    nodeUsageMode: EXCLUSIVE
+                    annotations:
+                    - key: "cluster-autoscaler.kubernetes.io/safe-to-evict"
+                      value: "false"
+                    containers:
+                      - name: "maven"
+                        image: "***/infra/jenkins-agent-maven"
+                        alwaysPullImage: false
+                        workingDir: "/home/jenkins/agent"
+                        ttyEnabled: true
+                        resourceRequestCpu: "500m"
+                        resourceLimitCpu: "2000m"
+                        resourceRequestMemory: "1.5Gi"
+                        resourceLimitMemory: "4Gi"
+                        args: "2000"
+                        command: "sleep"
+                        envVars:
+                          - secretEnvVar:
+                              key: "bla"
+                              secretName: "jenkins-secrets"
+                              secretKey: "blub"
+                          - envVar:
+                              key: "GOOGLE_APPLICATION_CREDENTIALS"
+                              value: "/gcpconfig/team-test-a0a6548a18f0.json"
+                    volumes:
+                      - secretVolume:
+                          mountPath: "/gcpconfig/"
+                          secretName: "gcp-secrets"
+                    idleMinutes:
+                    activeDeadlineSeconds:
+                    slaveConnectTimeout: "120"
+                  - name: "jenkins-agent-docker"
+                    namespace: "ci"
+                    label: "jenkins-agent-docker"
+                    nodeUsageMode: EXCLUSIVE
+                    annotations:
+                    - key: "cluster-autoscaler.kubernetes.io/safe-to-evict"
+                      value: "false"
+                    containers:
+                      - name: "docker"
+                        image: "***/infra/jenkins-agent-docker:2fc28ad"
+                        alwaysPullImage: false
+                        workingDir: "/home/jenkins/agent"
+                        ttyEnabled: true
+                        resourceRequestCpu: "1000m"
+                        resourceLimitCpu: ""
+                        resourceRequestMemory: "1Gi"
+                        resourceLimitMemory: ""
+                        envVars:
+                          - secretEnvVar:
+                              key: "bla"
+                              secretName: "jenkins-secrets"
+                              secretKey: "blub"
+                    volumes:
+                      - hostPathVolume:
+                          mountPath: "/var/run/docker.sock"
+                          hostPath: "/var/run/docker.sock"
+                      - secretVolume:
+                          mountPath: "/gcpconfig/"
+                          secretName: "gcp-secrets"
+                      - secretVolume:
+                          mountPath: "/nodejs/"
+                          secretName: "npmrc-secrets"
+                    idleMinutes:
+                    activeDeadlineSeconds:
+                    slaveConnectTimeout: "120"
+                  - name: "jenkins-agent-kubetools"
+                    namespace: "ci"
+                    label: "jenkins-agent-kubetools"
+                    nodeUsageMode: EXCLUSIVE
+                    annotations:
+                    - key: "cluster-autoscaler.kubernetes.io/safe-to-evict"
+                      value: "false"
+                    containers:
+                      - name: "kubetools"
+                        image: "***/infra/jenkins-agent-kubetools"
+                        alwaysPullImage: false
+                        workingDir: "/home/jenkins/agent"
+                        ttyEnabled: true
+                        resourceRequestCpu: "1000m"
+                        resourceLimitCpu: ""
+                        resourceRequestMemory: "1Gi"
+                        resourceLimitMemory: ""
+                    idleMinutes:
+                    activeDeadlineSeconds:
+                    slaveConnectTimeout: "120"
+                  - name: "jenkins-agent-terraform"
+                    namespace: "ci"
+                    label: "jenkins-agent-terraform"
+                    nodeUsageMode: EXCLUSIVE
+                    containers:
+                      - name: "terraform"
+                        image: "***/hashicorp/terraform:0.11.11"
+                        alwaysPullImage: false
+                        workingDir: "/home/jenkins/agent"
+                        ttyEnabled: true
+                        resourceRequestCpu: "1000m"
+                        resourceLimitCpu: ""
+                        resourceRequestMemory: "1Gi"
+                        resourceLimitMemory: ""
+                    idleMinutes:
+                    activeDeadlineSeconds:
+                    slaveConnectTimeout: "120"
+                  - name: "jenkins-agent-puppeteer"
+                    namespace: "ci"
+                    label: "jenkins-agent-puppeteer"
+                    nodeUsageMode: EXCLUSIVE
+                    annotations:
+                    - key: "cluster-autoscaler.kubernetes.io/safe-to-evict"
+                      value: "false"
+                    containers:
+                      - name: "puppeteer"
+                        image: "***/buildkite/puppeteer"
+                        alwaysPullImage: false
+                        workingDir: "/home/jenkins/agent"
+                        ttyEnabled: true
+                        resourceRequestCpu: "3000m"
+                        resourceLimitCpu: "4000m"
+                        resourceRequestMemory: "3Gi"
+                        resourceLimitMemory: "6Gi"
+                        envVars:
+                          - secretEnvVar:
+                              key: "bla"
+                              secretName: "jenkins-secrets"
+                              secretKey: "blub"
+                    volumes:
+                      - secretVolume:
+                          mountPath: "/nodejs/"
+                          secretName: "npmrc-secrets"
+                    yamlMergeStrategy: "merge"
+                    yaml: |-
+                      spec:
+                        securityContext:
+                          runAsUser: 1000
+                          fsGroup: 2000
+                    idleMinutes:
+                    activeDeadlineSeconds:
+                    slaveConnectTimeout: "120"
+                  - name: "jenkins-agent-gradle"
+                    namespace: "ci"
+                    label: "jenkins-agent-gradle"
+                    nodeUsageMode: EXCLUSIVE
+                    annotations:
+                    - key: "cluster-autoscaler.kubernetes.io/safe-to-evict"
+                      value: "false"
+                    containers:
+                      - name: "gradle"
+                        image: "***/gradle"
+                        alwaysPullImage: false
+                        workingDir: "/home/jenkins/agent"
+                        ttyEnabled: true
+                        resourceRequestCpu: "1000m"
+                        resourceLimitCpu: ""
+                        resourceRequestMemory: "1Gi"
+                        resourceLimitMemory: ""
+                        args: "2000"
+                        command: "sleep"
+                        envVars:
+                          - secretEnvVar:
+                              key: "bla"
+                              secretName: "jenkins-secrets"
+                              secretKey: "blub"
+                    idleMinutes:
+                    activeDeadlineSeconds:
+                    slaveConnectTimeout: "120"
+                  - name: "jenkins-agent-node"
+                    namespace: "ci"
+                    label: "jenkins-agent-node"
+                    nodeUsageMode: EXCLUSIVE
+                    annotations:
+                    - key: "cluster-autoscaler.kubernetes.io/safe-to-evict"
+                      value: "false"
+                    containers:
+                      - name: "node"
+                        image: "***/node:10.15.3-alpine"
+                        alwaysPullImage: false
+                        workingDir: "/home/jenkins/agent"
+                        ttyEnabled: true
+                        resourceRequestCpu: "1000m"
+                        resourceLimitCpu: ""
+                        resourceRequestMemory: "1Gi"
+                        resourceLimitMemory: ""
+                        envVars:
+                          - secretEnvVar:
+                              key: "bla"
+                              secretName: "jenkins-secrets"
+                              secretKey: "blub"
+                    volumes:
+                      - secretVolume:
+                          mountPath: "/nodejs/"
+                          secretName: "npmrc-secrets"
+                    idleMinutes:
+                    activeDeadlineSeconds:
+                    slaveConnectTimeout: "120"
+      jobscripts: |
+        jobs:
+          - script: >
+              freeStyleJob('bootstrap') {
+                  description("The bootstrap job for team projects")
+                  logRotator(-1, 10)
+                  scm {
+                      git {
+                          branch('master')
+                          remote {
+                              url('https://github.com/***/team-jenkins-bootstrap')
+                              credentials('Github-User')
+                          }
+                      }
+                  }
+                  steps {
+                      dsl {
+                          external('jobs/**/*.groovy')
+                          removeAction('DELETE')
+                      }
+                  }
+              }
+      viewscripts: |
+        jenkins:
+          viewsTabBar: "standard"
+          views:
+            - all:
+                name: "all"
+            - list:
+                columns:
+                  - "status"
+                  - "weather"
+                  - "jobName"
+                  - "lastSuccess"
+                  - "lastFailure"
+                  - "lastDuration"
+                  - "buildButton"
+                  - "favoriteColumn"
+                jobFilters:
+                  - "gitHubPullRequestFilter"
+                name: "PullRequests"
+                recurse: true
+                includeRegex: "LEAN"

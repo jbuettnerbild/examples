@@ -21,9 +21,9 @@ jobs:
           BRANCH_NAME=$(echo ${BRNACH_NAME_LOWERCASE^^})
           BRANCH_SHA=$(/usr/bin/git fetch && /usr/bin/git rev-parse origin/feature/$BRANCH_NAME)
           echo "BRANCH_SHA: $BRANCH_SHA"
-          curl -i -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -d +
-          '{ \"state\": \"${{ job.status }}\", +
-          \"target_url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\", +
-          \"description\": \"The E2E-Test result is ${{ job.status }}!\", +
-          \"context\": \"continuous-integration/E2E-Tests\" }' +
+          curl -i -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -d \
+          '{ \"state\": \"${{ job.status }}\", \
+          \"target_url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\", \
+          \"description\": \"The E2E-Test result is ${{ job.status }}!\", \
+          \"context\": \"continuous-integration/E2E-Tests\" }' \
           https://api.github.com/repos/${{ github.repository }}/statuses/$BRANCH_SHA

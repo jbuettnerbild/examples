@@ -18,8 +18,8 @@ jobs:
         env:
           BRNACH_NAME_LOWERCASE: "jb-1234"
         run: |
-          BRNACH_NAME=$(echo ${BRNACH_NAME_LOWERCASE^^})
-          BRANCH_SHA=$(git rev-parse origin/feature/$BRNACH_NAME)
+          BRANCH_NAME=$(echo ${BRNACH_NAME_LOWERCASE^^})
+          BRANCH_SHA=$(/usr/bin/git fetch && /usr/bin/git rev-parse origin/feature/$BRANCH_NAME)
           echo "BRANCH_SHA: $BRANCH_SHA"
           curl -i -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -d " +
             "'{ \"state\": \"${{ job.status }}\", " +

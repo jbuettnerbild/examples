@@ -1,0 +1,29 @@
+name: Status
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+
+jobs:
+  test:
+    name: Status
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Send Result to Branch
+        if: always()
+        env:
+          BRNACH_NAME_LOWERCASE: "jb-1234"
+        run: |
+          BRNACH_NAME=echo ${BRNACH_NAME_LOWERCASE^^}
+          BRANCH_SHA=git rev-parse origin/feature/$BRNACH_NAME
+          echo "BRANCH_SHA: $BRANCH_SHA"
+          curl -i -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -d " +
+            "'{ \"state\": \"${( job.status }}\", " +
+            "\"target_url\": \"https://https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\", " +
+            "\"description\": \"The E2E-Test result is ${( job.status }}!\", " +
+            "\"context\": \"continuous-integration/E2E-Tests\" }' " +
+            "https://api.github.com/repos/${{ github.repository }}/statuses/${BRANCH_SHA}"

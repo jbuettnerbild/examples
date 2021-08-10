@@ -1,4 +1,4 @@
-Name: k8s
+name: k8s
 
 on:
   workflow_dispatch:

@@ -1,0 +1,36 @@
+ame: Example action
+
+on:
+  workflow_dispatch:
+
+jobs:
+  k3s:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v2
+      - name: install k8s
+        run: |
+          curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE=777 sh -
+          cat /etc/rancher/k3s/k3s.yaml
+          mkdir -p ~/.kube
+          cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
+      - name: example tests
+        run: |
+          kubectl cluster-info
+  kind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v2
+      - name: install k8s
+        uses: rockyhmchen/gh-actions-kind-env@master
+        with:
+          kind-version: "v0.5.1"
+          kubefwd-version: "v1.9.2"
+          bepatient-version: "v0.1.0"
+      - name: example tests
+        run: |
+          kubectl cluster-info
+
+

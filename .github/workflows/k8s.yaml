@@ -1,4 +1,4 @@
-ame: Example action
+Name: k8s
 
 on:
   workflow_dispatch:
